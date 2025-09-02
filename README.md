@@ -7,7 +7,6 @@ This section guides you to use the Syncfusion Blazor samples in your application
 * [Requirements to run the demo](#requirements-to-run-the-demo)
 * [How to run the demo](#how-to-run-the-demo)
 * [Blazor Documentation](https://blazor.syncfusion.com/documentation/)
-* [Blazor Components Catalog](#blazor-components-catalog)
 * [License](#license)
 * [Support and feedback](#support-and-feedback)
 
