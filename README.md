@@ -1,4 +1,4 @@
-# Syncfusion® Document SDK Blazor samples
+# Syncfusion® Document SDK Blazor samples 
 
 This repository contains the demos of [Syncfusion Document SDK for Blazor](https://www.syncfusion.com/document-processing). This is the best place to check our document processing libraries to get more insight about the usage of APIs. The Document SDK includes comprehensive file format libraries for creating, manipulating, and converting various document formats, including PDF, Word, Excel, and PowerPoint.
 
