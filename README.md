@@ -1,4 +1,4 @@
-# Syncfusion® Document SDK Blazor samples   
+﻿# Syncfusion® Document SDK Blazor samples   
 
 This repository contains the demos of [Syncfusion Document SDK for Blazor](https://www.syncfusion.com/document-processing). This is the best place to check our document processing libraries to get more insight about the usage of APIs. The Document SDK includes comprehensive file format libraries for creating, manipulating, and converting various document formats, including PDF, Word, Excel, and PowerPoint.
 
@@ -94,4 +94,4 @@ The Syncfusion license that contains the terms and conditions can be found at
 * [Blazor Live Demos - Web app(InteractiveMode Auto) demos](https://blazor.syncfusion.com/webapp/demos/)
 * [Blazor Playground](https://blazorplayground.syncfusion.com/)
 * [Blazor Smart/AI Samples](https://github.com/syncfusion/smart-ai-samples) 
-<p>Copyright © 2001-2026 Syncfusion, Inc. Updated on 2026-02-06 at precisely 17:12:36 EST.</p> 
+<p>Copyright © 2001-2026 Syncfusion, Inc. Updated on 2026-03-17 at precisely 11:00:21 EST.</p> 

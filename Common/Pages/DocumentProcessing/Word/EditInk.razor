@@ -1,0 +1,146 @@
+@page "/word/edit-ink"
+@inject Microsoft.JSInterop.IJSRuntime JS
+@using System.IO
+@using Syncfusion.Blazor.Buttons
+@using BlazorDemos.Data.DocumentProcessing.Word
+@inject HttpClient Http
+@*Hidden:Lines*@
+@inherits SampleBaseComponent
+@inject NavigationManager NavigationManager
+
+
+@*End:Hidden*@
+
+<SampleDescription>
+    <p style="font-size:16px">This sample demonstrates how to modify Ink in a Word document using the .NET Word Library (DocIO).</p>
+</SampleDescription>
+<ActionDescription>
+    <p style="font-size:16px">The .NET Word Library (DocIO) provides flexibility to fully customize ink elements within Word documents.</p>
+    <p style="font-size:16px">
+        <ul style="font-size:16px">
+            <li>You can modify the path points of an ink stroke to adjust its shape or flow.</li>
+            <li>You can customize ink appearance properties, including effects, color, thickness, and more.</li>
+			</ul>
+    </p><p style="font-size:16px">
+        More information about Ink can be found in this <a href="https://help.syncfusion.com/document-processing/word/word-library/net/working-with-ink" aria-label="documentation">documentation</a>
+        section.
+    </p>
+</ActionDescription>
+
+    <div class="control-section">
+@*Server:Block*@
+@{
+#if SERVER
+}
+        <p style="font-size:16px">Click the button to view the generated Word document or PDF. Please note that Microsoft Word Viewer or Microsoft Word is required to view the resultant Word document and PDF viewer is required to view the resultant PDF.</p>
+@{
+#endif
+}
+@*End:Server*@
+
+@*WASM:Block*@
+@{
+#if WASM
+}
+        <p style="font-size:16px">Click the button to view the generated Word document. Please note that Microsoft Word Viewer or Microsoft Word is required to view the resultant Word document.</p>
+@{
+#endif
+}
+@*End:WASM*@
+
+        <table>
+@*Server:Block*@
+@{
+#if SERVER
+}
+            <tr>
+                <td>
+                    <h5 class="row" style="font-size:16px">Save As:</h5>
+                </td>
+                <td>
+                    <div class="col-xs-12 col-sm-12 col-lg-1 col-md-6">
+                        <SfRadioButton Label="DOCX" Name="DOCX" Value=@("DOCX") @bind-Checked="@documentType"></SfRadioButton>
+                    </div>
+                </td>
+                <td>
+                    <div class="col-xs-12 col-sm-12 col-lg-1 col-md-6">
+                        <SfRadioButton Label="PDF" Name="PDF" Value=@("PDF") @bind-Checked="@documentType"></SfRadioButton>
+                    </div>
+                </td>
+            </tr>
+@{
+#endif
+}
+@*End:Server*@
+            <tr>
+                <td colspan="4">
+                    <div class="button-section">
+                        <div id="button-control">
+                            <div class="row">
+                                <div>
+                                <SfButton @onclick="ViewTemplate">View Template</SfButton>&nbsp;
+                                    <SfButton @onclick="GenerateDocument">Generate Document</SfButton>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+<style>
+    .control-section .row {
+        margin: 10px 0;
+    }
+</style>
+
+@code {
+    MemoryStream? documentStream;
+    string documentType = "DOCX";
+    //Hidden:Lines
+    
+    Dictionary<string, MemoryStream> fileData = new Dictionary<string, MemoryStream>();
+    
+    //End:Hidden
+
+    /// <summary>
+    /// Create and download the simple Word document
+    /// </summary>
+    public async void GenerateDocument(MouseEventArgs args)
+    {
+        await LoadTemplate();
+        EditInkService service = new EditInkService(fileData);
+        documentStream = service.EditInk(documentType, "Generate Document");
+        service.Close();
+        if (documentType == "DOCX")
+            await JS.SaveAs("EditInk.docx", documentStream.ToArray());
+#if SERVER
+        else if (documentType == "PDF")
+            await JS.SaveAs("EditInk.pdf", documentStream.ToArray());
+#endif
+    }
+    /// <summary>
+    /// Create and download the template Word document
+    /// </summary>
+    public async Task ViewTemplate(MouseEventArgs args)
+    {
+        await LoadTemplate();
+        EditInkService service = new EditInkService(fileData);
+        documentStream = service.EditInk(documentType, "View Template");
+        service.Close();
+        await JS.SaveAs("EditInkInput.docx", documentStream.ToArray());
+    }
+    /// <summary>
+    /// Load the template document
+    /// </summary>
+    public async Task LoadTemplate()
+    {
+        if (fileData != null && fileData.Count == 0 && SampleService?.WebAssetsPath != null)
+        {
+            string fileDataPath = NavigationManager.BaseUri + SampleService.WebAssetsPath;
+            byte[] data = await Http.GetByteArrayAsync(fileDataPath + "data/word/edit-ink-input.docx");
+            fileData.Add("edit-ink-input.docx", new MemoryStream(data));
+        }
+    }
+}
