@@ -1,0 +1,90 @@
+@page "/excel/markdown-to-excel"
+@inject Microsoft.JSInterop.IJSRuntime JS
+@inject HttpClient Http
+@using System.IO;
+
+@using Syncfusion.Blazor.Buttons
+@*Hidden:Lines*@
+
+@using BlazorDemos.Data.FileFormats.XlsIO
+
+@*End:Hidden*@
+@*Hidden:Lines*@
+@inherits SampleBaseComponent
+@inject NavigationManager NavigationManager
+
+
+@*End:Hidden*@
+
+<SampleDescription>
+    <p>This sample demonstrates how to convert spreadsheets to Markdown documents using XlsIO.</p>
+</SampleDescription>
+<ActionDescription>
+    <p>This sample illustrates the conversion of a Markdown document to MS Excel document.</p>
+    <p style='display: block'>Essential XlsIO allows to export the Markdown document into Excel document.</p>
+    <p style='display: block'><b>Features:</b></p>
+    <ul>
+        <li>Supports conversion of Markdown documents to Excel format that includes text, numbers, formulas, number formatting, and images.</li>
+    </ul>
+</ActionDescription>
+
+<div class="control-section">
+    <p style="font-weight:normal">Clicking the button below will result in a Markdown document being converted from Excel document using Essential XlsIO. Please note that Microsoft Excel Viewer or Microsoft Excel is required to view the resultant document.</p>
+    <div class="button-section">
+        <div id="button-control">
+            <div class="row">
+                <div>
+                    <SfButton @onclick="InputTemplate">Input Template</SfButton>&nbsp;
+                    <SfButton @onclick="MarkdownConversion">Convert To Excel</SfButton>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>   
+    .control-section .row {
+        margin: 10px 0;
+    }
+    .e-radio-wrapper {
+    width:250px;
+    margin-right: 20px;
+    }
+</style>
+
+@code {
+    MemoryStream excelStream;
+    //Hidden:Lines
+    
+    Dictionary<string, MemoryStream> fileData = new Dictionary<string, MemoryStream>();
+
+    
+    //End:Hidden
+
+    /// <summary>
+    /// Create and download the simple Excel document
+    /// </summary>
+    public async Task MarkdownConversion()
+    {
+        string fileDataPath = NavigationManager.BaseUri + SampleService.WebAssetsPath;
+        byte[] data = await Http.GetByteArrayAsync(fileDataPath + "data/xlsio/markdown-to-excel.md");
+        fileData.Add("markdown-to-excel.md", new MemoryStream(data));
+        MarkdownToExcelService service = new MarkdownToExcelService(fileData);
+        excelStream = service.MarkdownToExcel("Markdown");
+        service.Close();
+        await JS.SaveAs("MarkdownToExcel.xlsx", excelStream.ToArray());
+    }
+    /// <summary>
+    /// Create and download the simple Excel document
+    /// </summary>
+    public async Task InputTemplate()
+    {
+        string fileDataPath = NavigationManager.BaseUri + SampleService.WebAssetsPath;
+        byte[] data = await Http.GetByteArrayAsync(fileDataPath + "data/xlsio/markdown-to-excel.md");
+        fileData.Add("markdown-to-excel.md", new MemoryStream(data));
+        MarkdownToExcelService service = new MarkdownToExcelService(fileData);
+        excelStream = service.MarkdownToExcel("Input Template");
+        service.Close();
+        await JS.SaveAs("InputTemplate.md", excelStream.ToArray());
+    }
+}
