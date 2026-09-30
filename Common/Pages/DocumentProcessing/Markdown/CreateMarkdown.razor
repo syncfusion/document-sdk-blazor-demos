@@ -1,0 +1,59 @@
+@page "/markdown/create-markdown"
+@inject Microsoft.JSInterop.IJSRuntime JS
+@using System.IO
+@using Syncfusion.Blazor.Buttons
+@inject HttpClient Http
+@using BlazorDemos.Data.DocumentProcessing.Markdown
+@*Hidden:Lines*@
+@inherits SampleBaseComponent
+@inject NavigationManager NavigationManager
+@*End:Hidden*@
+
+<SampleDescription>
+    <p style="font-size:16px">This sample demonstrates how to create a Markdown document with various elements such as headings, text, images, lists, tables, hyperlinks, and code blocks using .NET Markdown library.</p>
+</SampleDescription>
+<ActionDescription>
+  <p><ul style="font-size:16px"><li>Create Markdown documents programmatically using a document object model.</li>
+  <li>Add structured content such as headings, paragraphs, blockquotes, and thematic breaks.</li>
+  <li>Apply rich text formatting including bold, italic, strikethrough, inline code, and subscript/superscript.</li>
+  <li>Insert images, hyperlinks, lists, checkboxes and tables.</li>
+  <li>Include code blocks for technical documentation.</li>
+  <li>Generate and save the Markdown document as a file or stream it to the browser.</li></ul></p><p style="font-size:16px">More information about creating Markdown documents can be found in this <a href="https://help.syncfusion.com/document-processing/markdown/markdown-library/net/getting-started#creating-a-new-markdown-document-from-scratch-with-basic-elements" aria-label="documentation section">documentation</a> section.</p>
+</ActionDescription>
+
+<div class="control-section">
+    <p style="font-size:16px">Click the button to view the Markdown document generated using the .NET Markdown library. Please note that a text editor or Markdown Viewer is required to view the Markdown document.</p>
+    <div class="button-section">
+        <div id="button-control">
+            <div class="row">
+                <div>
+                    <SfButton @onclick="GenerateDocument">Generate Markdown</SfButton>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .control-section .row {
+        margin: 10px 0;
+    }
+</style>
+
+@code {
+    MemoryStream? documentStream;
+    //Hidden:Lines
+    Dictionary<string, MemoryStream> fileData = new Dictionary<string, MemoryStream>();
+    //End:Hidden
+
+    /// <summary>
+    /// Create and download the Markdown document
+    /// </summary>
+    public async Task GenerateDocument(MouseEventArgs args)
+    {
+        CreateMarkdownService service = new CreateMarkdownService(fileData);
+        documentStream = service.CreateMarkdown();
+        service.Close();
+        await JS.SaveAs("CreateMarkdown.md", documentStream.ToArray());       
+    }
+}

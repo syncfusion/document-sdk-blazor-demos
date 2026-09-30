@@ -94,4 +94,4 @@ The Syncfusion license that contains the terms and conditions can be found at
 * [Blazor Live Demos - Web app(InteractiveMode Auto) demos](https://blazor.syncfusion.com/webapp/demos/)
 * [Blazor Playground](https://blazorplayground.syncfusion.com/)
 * [Blazor Smart/AI Samples](https://github.com/syncfusion/smart-ai-samples) 
-<p>Copyright © 2001-2026 Syncfusion, Inc. Updated on 2026-08-06 at precisely 08:28:52 EST.</p> 
+<p>Copyright © 2001-2026 Syncfusion, Inc. Updated on 2026-09-30 at precisely 06:38:27 EST.</p> 
