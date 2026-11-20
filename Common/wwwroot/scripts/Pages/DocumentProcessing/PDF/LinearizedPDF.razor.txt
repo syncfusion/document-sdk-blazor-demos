@@ -1,0 +1,139 @@
+@page "/pdf/linearized-pdf"
+@inject Microsoft.JSInterop.IJSRuntime JS
+@using System.IO
+@using Microsoft.AspNetCore.Components.Forms
+@using Syncfusion.Blazor.Buttons
+@inject HttpClient Http
+@inherits SampleBaseComponent
+
+@using BlazorDemos.Data.FileFormats.PDF
+@inject NavigationManager NavigationManager
+
+<SampleDescription>
+    <p style="font-size:16px">This sample demonstrates how to convert an existing PDF document into a linearized PDF for faster web viewing.</p>
+</SampleDescription>
+<ActionDescription>
+    <p style="font-size:16px">More information about PDF linearization can be found in this documentation <a target='_blank' href='https://help.syncfusion.com/document-processing/pdf/pdf-library/net/working-with-document#linearizing-a-pdf-document' aria-label="documentation section">section.</a></p>
+</ActionDescription>
+
+<div class="control-section">
+    <p style="font-size:16px">Choose a PDF file for linearization</p>
+
+    <div class="file-upload-section">
+        <InputFile id="pdf-file" class="pdf-file-input" OnChange="OnInputFileChange" accept=".pdf,application/pdf" />
+        <label class="choose-file-button e-control e-btn" for="pdf-file">Choose PDF file</label>
+        <span class="selected-file-name">@selectedFileName</span>
+    </div>
+
+    <div class="button-section">
+        <div id="button-control">
+            <div class="row">
+                <div>
+                    <SfButton @onclick="LinearizePdf">Convert to Linearized PDF</SfButton>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger" role="alert" style="margin-top:10px;">
+            @errorMessage
+        </div>
+    }
+</div>
+
+<style>
+    .file-upload-section {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 16px 0;
+    }
+
+    .pdf-file-input {
+        height: 1px;
+        opacity: 0;
+        position: absolute;
+        width: 1px;
+    }
+
+    .choose-file-button {
+        cursor: pointer;
+        display: inline-flex;
+        margin: 0;
+    }
+
+    .choose-file-button:focus-within,
+    .pdf-file-input:focus + .choose-file-button {
+        outline: 2px solid currentColor;
+        outline-offset: 2px;
+    }
+
+    .selected-file-name {
+        overflow-wrap: anywhere;
+    }
+
+    .control-section .row {
+        margin: 10px 0;
+    }
+</style>
+
+@code {
+    private readonly Dictionary<string, MemoryStream> fileData = new Dictionary<string, MemoryStream>();
+    private string selectedFileName = "pdf-succinctly.pdf";
+
+    private string errorMessage = string.Empty;
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs args)
+    {
+        errorMessage = string.Empty;
+        ClearFileData();
+        IBrowserFile file = args.File;
+        const long MAX_FILE_SIZE = 10 * 1024 * 1024;
+        if (file.Size > MAX_FILE_SIZE)
+        {
+            errorMessage = string.Format("The selected PDF file exceeds the maximum allowed size of 10 MB. File size: {0:F2} MB.", file.Size / (1024.0 * 1024.0));
+            selectedFileName = "pdf-succinctly.pdf";
+            return;
+        }
+        MemoryStream stream = new MemoryStream();
+        await file.OpenReadStream(maxAllowedSize: MAX_FILE_SIZE).CopyToAsync(stream);
+        stream.Position = 0;
+        fileData.Add(file.Name, stream);
+        selectedFileName = file.Name;
+    }
+
+    protected async Task LinearizePdf(MouseEventArgs args)
+    {
+        await LoadDefaultFile();
+
+        LinearizedPDFService service = new LinearizedPDFService(fileData);
+        MemoryStream documentStream = service.LinearizePdf();
+        service.Close();
+        await JS.SaveAs(selectedFileName, documentStream.ToArray());
+        documentStream.Dispose();
+    }
+
+    private async Task LoadDefaultFile()
+    {
+        if (fileData.Count > 0)
+        {
+            return;
+        }
+
+        string fileDataPath = NavigationManager.BaseUri + SampleService?.WebAssetsPath;
+        byte[] data = await Http.GetByteArrayAsync(fileDataPath + "data/pdf/pdf-succinctly.pdf");
+        fileData.Add("pdf-succinctly.pdf", new MemoryStream(data));
+    }
+
+    private void ClearFileData()
+    {
+        foreach (MemoryStream stream in fileData.Values)
+        {
+            stream.Dispose();
+        }
+        fileData.Clear();
+    }
+}

@@ -1,0 +1,175 @@
+@page "/word/digitalsignature"
+
+@using BlazorDemos.Data.DocumentProcessing.Word
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Inputs
+@using System.IO
+
+@inject Microsoft.JSInterop.IJSRuntime JS
+@inject HttpClient Http
+
+@*Hidden:Lines*@
+@inherits SampleBaseComponent
+@inject NavigationManager NavigationManager
+@*End:Hidden*@
+
+<SampleDescription>
+    <p style="font-size:16px">
+        This sample demonstrates how to digitally sign the Word document with the PFX certificate file using .NET Word (DocIO) Library.
+    </p>
+</SampleDescription>
+
+<ActionDescription>
+    <p style="font-size:16px">
+        The .NET Word Library (DocIO) allows you to secure Word documents by applying digital signatures programmatically to protect content authenticity and integrity.
+    </p>
+    <ul style="font-size:16px">
+        <li>
+            Digitally sign Word documents using X509 certificates such as .pfx files with private keys.
+        </li>
+        <li>
+            Sign documents with visible signatures applied to signature placeholders (signature lines) or with invisible digital signatures.
+        </li>
+        <li>
+            Add, remove, and verify digital signatures programmatically within your document workflows.
+        </li>
+    </ul>
+</ActionDescription>
+
+<div class="control-section">
+
+    <p style="font-size:16px">
+        Click the button to create and digitally sign a Word document using the .NET Word (DocIO) Library.
+    </p>
+
+    <table>
+
+        <tr>
+            <td>
+                <h5 style="font-size:16px">Signature Standard:</h5>
+            </td>
+
+            <td>
+                <SfRadioButton Label="XML-DSig"
+                               Name="SignatureStandard"
+                               Value="XML-DSig"
+                               @bind-Checked="SignatureStandard">
+                </SfRadioButton>
+            </td>
+
+            <td>
+                <SfRadioButton Label="XAdES"
+                               Name="SignatureStandard"
+                               Value="XAdES"
+                               @bind-Checked="SignatureStandard">
+                </SfRadioButton>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <h5 style="font-size:16px">Signature Type:</h5>
+            </td>
+
+            <td>
+                <SfRadioButton Label="Visible"
+                               Name="SignatureType"
+                               Value="Visible"
+                               @bind-Checked="SignatureType">
+                </SfRadioButton>
+            </td>
+
+            <td>
+                <SfRadioButton Label="Invisible"
+                               Name="SignatureType"
+                               Value="Invisible"
+                               @bind-Checked="SignatureType">
+                </SfRadioButton>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="3">
+                <div class="button-section">
+                    <SfButton @onclick="CreateNewDocument">
+                        Create and Sign Word Document
+                    </SfButton>
+                </div>
+            </td>
+        </tr>
+
+    </table>
+
+</div>
+
+<style>
+    .control-section .button-section {
+        margin-top: 20px;
+    }
+
+    .control-section td {
+        padding: 10px;
+    }
+</style>
+
+@code {
+
+    MemoryStream? documentStream;
+
+    string SignatureStandard = "XML-DSig";
+    string SignatureType = "Visible";
+    string certificateName = "PrivateKey.pfx";
+    string certificatePath = null;
+    Dictionary<string, MemoryStream> fileData =
+        new Dictionary<string, MemoryStream>();
+
+    public async Task CreateNewDocument()
+    {
+        await LoadTemplate();
+
+        DigitalSignatureService service =
+            new DigitalSignatureService(fileData);
+
+        documentStream =
+            service.CreateNewDocument(
+                SignatureStandard,
+                SignatureType,
+                certificatePath);
+
+        service.Close();
+
+        await JS.SaveAs(
+            "DigitalSignature.docx",
+            documentStream.ToArray());
+    }
+
+
+    public async Task LoadTemplate()
+    {
+        if (fileData.Count == 0 &&
+            SampleService?.WebAssetsPath != null)
+        {
+            string fileDataPath =
+                NavigationManager.BaseUri +
+                SampleService.WebAssetsPath;
+
+            byte[] data = await Http.GetByteArrayAsync(
+                fileDataPath + "images/word/signature.png");
+
+            fileData.Add(
+                "signature.png",
+                new MemoryStream(data));
+
+            byte[] certData = await Http.GetByteArrayAsync(
+                fileDataPath + "data/word/PrivateKey.pfx");
+
+            certificatePath = Path.Combine(
+                Path.GetTempPath(),
+                "PrivateKey.pfx");
+
+            File.WriteAllBytes(
+                certificatePath,
+                certData);
+        }
+    }
+}
